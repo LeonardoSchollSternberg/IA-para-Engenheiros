@@ -4,7 +4,7 @@ import re
 import os
 
 # --- CONFIGURAÇÃO ---
-ARQUIVO_ENTRADA = 'Lab03Tarefa01.html'
+ARQUIVO_ENTRADA = 'Lab04Tarefa04.html'
 # --- ---
 
 def converter_notebook_completo():
