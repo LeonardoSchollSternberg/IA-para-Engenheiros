@@ -4,7 +4,7 @@ import re
 import os
 
 # --- CONFIGURAÇÃO ---
-ARQUIVO_ENTRADA = 'Lab04Tarefa04.html'
+ARQUIVO_ENTRADA = 'Lab04Tarefa03.html'
 # --- ---
 
 def converter_notebook_completo():
@@ -17,6 +17,7 @@ def converter_notebook_completo():
 
         nb = nbf.v4.new_notebook()
         cells = []
+        textos_adicionados = set()  # Rastrear textos já adicionados para evitar duplicatas
 
         # Regex para limpar o "In [ ]:" dos blocos de código
         padrao_jupyter = re.compile(r'^In\s*\[.*?\]:\s*', re.MULTILINE)
@@ -28,21 +29,31 @@ def converter_notebook_completo():
             if elemento.name == 'pre' or 'highlight' in elemento.get('class', []):
                 texto = elemento.get_text().strip()
                 codigo_limpo = padrao_jupyter.sub('', texto).strip()
-                if codigo_limpo:
+                if codigo_limpo and codigo_limpo not in textos_adicionados:
                     cells.append(nbf.v4.new_code_cell(codigo_limpo))
+                    textos_adicionados.add(codigo_limpo)
             
             # 2. Se for Título ou Texto (Markdown)
-            elif elemento.name in ['h1', 'h2', 'h3', 'p']:
+            elif elemento.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']:
                 texto_md = elemento.get_text().strip()
-                if texto_md and not texto_md.startswith('In ['): # Evita duplicar rótulos
+                if texto_md and not texto_md.startswith('In [') and texto_md not in textos_adicionados:
                     # Se for título, adiciona os '#' do Markdown
-                    if elemento.name == 'h1': texto_md = f"# {texto_md}"
-                    elif elemento.name == 'h2': texto_md = f"## {texto_md}"
-                    elif elemento.name == 'h3': texto_md = f"### {texto_md}"
+                    if elemento.name == 'h1': 
+                        texto_md = f"# {texto_md}"
+                    elif elemento.name == 'h2': 
+                        texto_md = f"## {texto_md}"
+                    elif elemento.name == 'h3': 
+                        texto_md = f"### {texto_md}"
+                    elif elemento.name == 'h4':
+                        texto_md = f"#### {texto_md}"
+                    elif elemento.name == 'h5':
+                        texto_md = f"##### {texto_md}"
+                    elif elemento.name == 'h6':
+                        texto_md = f"###### {texto_md}"
                     
                     cells.append(nbf.v4.new_markdown_cell(texto_md))
+                    textos_adicionados.add(texto_md)
 
-        # Remove células duplicadas que podem surgir pela estrutura do HTML
         nb['cells'] = cells
 
         with open(arquivo_saida, 'w', encoding='utf-8') as f:
