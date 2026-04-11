@@ -4,7 +4,7 @@ import re
 import os
 
 # --- CONFIGURAÇÃO ---
-ARQUIVO_ENTRADA = 'Lab04Tarefa03.html'
+ARQUIVO_ENTRADA = 'Lab05Tarefa02.html'
 # --- ---
 
 def converter_notebook_completo():
@@ -25,7 +25,7 @@ def converter_notebook_completo():
         # Captura títulos (h1-h6), parágrafos (p) e blocos de código (pre)
         for elemento in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'div']):
             
-            # 1. Se for bloco de código (comumente dentro de 'pre' ou divs específicas)
+            # 1. Se for bloco de código (PRE ou div com classe 'highlight')
             if elemento.name == 'pre' or 'highlight' in elemento.get('class', []):
                 texto = elemento.get_text().strip()
                 codigo_limpo = padrao_jupyter.sub('', texto).strip()
@@ -33,24 +33,28 @@ def converter_notebook_completo():
                     cells.append(nbf.v4.new_code_cell(codigo_limpo))
                     textos_adicionados.add(codigo_limpo)
             
-            # 2. Se for Título ou Texto (Markdown)
-            elif elemento.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']:
+            # 2. Se for Título (h1-h6) → Markdown
+            elif elemento.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                texto_md = elemento.get_text().strip()
+                if texto_md and texto_md not in textos_adicionados:
+                    # Adiciona os '#' conforme o nível do título
+                    nivel = int(elemento.name[1])  # Extrai o número de h1-h6
+                    texto_md = '#' * nivel + ' ' + texto_md
+                    
+                    cells.append(nbf.v4.new_markdown_cell(texto_md))
+                    textos_adicionados.add(texto_md)
+            
+            # 3. Se for Parágrafo (p) → Markdown
+            elif elemento.name == 'p':
                 texto_md = elemento.get_text().strip()
                 if texto_md and not texto_md.startswith('In [') and texto_md not in textos_adicionados:
-                    # Se for título, adiciona os '#' do Markdown
-                    if elemento.name == 'h1': 
-                        texto_md = f"# {texto_md}"
-                    elif elemento.name == 'h2': 
-                        texto_md = f"## {texto_md}"
-                    elif elemento.name == 'h3': 
-                        texto_md = f"### {texto_md}"
-                    elif elemento.name == 'h4':
-                        texto_md = f"#### {texto_md}"
-                    elif elemento.name == 'h5':
-                        texto_md = f"##### {texto_md}"
-                    elif elemento.name == 'h6':
-                        texto_md = f"###### {texto_md}"
-                    
+                    cells.append(nbf.v4.new_markdown_cell(texto_md))
+                    textos_adicionados.add(texto_md)
+            
+            # 4. Se for DIV (sem highlight) → Markdown
+            elif elemento.name == 'div' and 'highlight' not in elemento.get('class', []):
+                texto_md = elemento.get_text().strip()
+                if texto_md and texto_md not in textos_adicionados:
                     cells.append(nbf.v4.new_markdown_cell(texto_md))
                     textos_adicionados.add(texto_md)
 
