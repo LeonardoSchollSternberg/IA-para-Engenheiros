@@ -1,0 +1,12 @@
+Trabalho Análise De Dados E Engenharia De Características:
+
+Grupos: Sozinho ou em dupla
+Tema: 
+- Selecionar uma área de aplicação que tem uma ou mais conjuntos de dados (idealmente mais de um conjunto)
+- Realizar uma pesquisa bibliométrica (systematic review) apresentando modelos de machine learning e autores mais citados. No moodle tem um guia essa pesquisa. Intenção é garantir a melhor pesquisa
+- Aplicar um EDA manual, e um EDA automático. Discutir resultados
+- Apresentar trabalho em formato de artigo científico / paper (pegar template de uma revista que gosta, como IEEE)
+- Entrega: 30/04
+
+Obs: "Google de hoje me dia se chama perplexity"
+Melhor pessoa para trabalhar: Jonathan Aguilheira Carvalho
